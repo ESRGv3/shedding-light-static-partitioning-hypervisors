@@ -1,0 +1,53 @@
+/dts-v1/;
+
+/ {
+    #address-cells = <2>;
+    #size-cells = <1>;
+
+    gic: gic {
+        #interrupt-cells = <3>;
+        interrupt-controller;
+    };
+
+    passthrough {
+        compatible = "simple-bus";
+        ranges;
+        #address-cells = <2>;
+        #size-cells = <1>;
+
+    	uartclk: uartclk {
+            compatible = "fixed-clock";
+            #clock-cells = <0>;
+            clock-frequency = <100000000>;
+	    };
+
+        serial1@ff010000 {
+            xen,path = "/amba/serial@ff010000";
+            xen,reg = <0x0 0xff010000 0x1000 0x0 0xff010000>;
+            xen,force-assign-without-iommu;
+
+            compatible = "cdns,uart-r1p12", "xlnx,xuartps";
+            reg = <0x00 0xff010000 0x1000>;
+		 	clock-names = "uart_clk", "pclk";
+		 	clocks = <&uartclk>, <&uartclk>;
+            interrupt-parent = <&gic>;
+            // interrupts = <0x00 0x16 0x04>;
+            status = "okay";
+        };
+
+        pmu {
+            compatible = "arm,armv8-pmuv3";
+            interrupt-parent = <0x04>;
+            interrupts = <0x00 0x8f 0x04 0x00 0x90 0x04 0x00 0x91 0x04 0x00 0x92 0x04>;
+        };
+
+        sram@7fe01000 {
+            compatible = "mmio-sram";
+            reg = <0x0 0x7fe01000 0x1000>;
+            xen,reg = <0x0 0x7fe01000 0x1000 0x0 0x3F000000>;
+            xen,force-assign-without-iommu = <0x1>;
+        };
+       
+    };
+};
+

@@ -1,0 +1,18 @@
+source $(dirname $(realpath $BASH_SOURCE))/common
+
+CONFIG_NAME="mibench+interf"
+DOM0=false
+LOG_LEVEL=all
+
+NUM_DOMUS=2
+
+DOMU_KERNEL[0]="guests/linux/linux/arch/arm64/boot/Image"
+DOMU_PASSTHROUGH_DTB[0]="xen/device-tree/uart1.dtb"
+DOMU_MEM[0]=256
+DOMU_VCPUS[0]=1
+DOMU_BOOTARGS[0]="earlycon console=ttyPS0,115200n8"
+
+DOMU_KERNEL[1]="guests/interf/build/zcu104/baremetal.bin"
+DOMU_PASSTHROUGH_DTB[1]="xen/device-tree/uart0.dtb"
+DOMU_MEM[1]=128
+DOMU_VCPUS[1]=2

@@ -1,0 +1,67 @@
+/*
+ * Copyright 2018, Data61
+ * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+ * ABN 41 687 119 230.
+ *
+ * This software may be distributed and modified according to the terms of
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
+ *
+ * @TAG(DATA61_BSD)
+ */
+
+#include <configurations/vm.h>
+
+assembly {
+	composition {}
+	configuration {
+
+        vm0.linux_address_config = {
+            "linux_ram_base" : "0x40000000",
+            "linux_ram_size" : "0x8000000",
+        };
+
+        vm0.num_vcpus = 2;
+        vm0.vcpu_affinity = [3, 2];
+        vm0.affinity = 3;
+
+        vm0.linux_image_config = { 
+            "linux_name": "ipi",
+        };
+
+        vm0.dtb = dtb([
+            {"path": "/amba/serial@ff010000"},
+        ]);
+
+        vm0.mmios = [
+            "0xf9060000:0x1000:12", // Interrupt Controller Virtual CPU interface (Virtual Machine view)
+        ];
+
+        vm0.untyped_mmios = [
+            "0x40000000:27", // Linux kernel memory regions
+        ];
+
+        vm1.linux_address_config = {
+            "linux_ram_base" : "0x48000000",
+            "linux_ram_size" : "0x8000000",
+        };
+
+        vm1.linux_image_config = {
+            "linux_name": "interf",
+        };
+
+        vm1.num_vcpus = 1;
+        vm1.vcpu_affinity = [1];
+        vm1.affinity = 1;
+
+        vm1.dtb = dtb([
+            {"path": "/amba/serial@ff000000"},
+        ]);
+        vm1.mmios = [
+            "0xf9060000:0x1000:12", // Interrupt Controller Virtual CPU terface ////(Virtual Machine view)
+        ];
+        vm1.untyped_mmios = [   
+            "0x48000000:27", // Linux kernel memory regions
+        ];
+	}
+}

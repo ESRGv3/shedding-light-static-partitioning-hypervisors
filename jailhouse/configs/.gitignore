@@ -1,0 +1,5 @@
+*.o
+*.cell
+*.cmd
+*.tmp
+*.dtb

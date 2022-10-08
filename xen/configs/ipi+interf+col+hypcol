@@ -1,0 +1,21 @@
+source $(dirname $(realpath $BASH_SOURCE))/common
+
+CONFIG_NAME="ipi+interf"
+DOM0=false
+
+NUM_DOMUS=2
+
+DOMU_KERNEL[0]="guests/ipi/build/zcu104/baremetal.bin"
+DOMU_PASSTHROUGH_DTB[0]="xen/device-tree/uart1.dtb"
+DOMU_MEM[0]=128
+DOMU_VCPUS[0]=2
+
+DOMU_KERNEL[1]="guests/interf-single/build/zcu104/baremetal.bin"
+DOMU_PASSTHROUGH_DTB[1]="xen/device-tree/uart1-mapped-as-uart0.dtb"
+DOMU_MEM[1]=128
+DOMU_VCPUS[1]=1
+
+USE_COLORING=true
+XEN_COLORS=0-1
+DOMU_COLORS[0]=2-9
+DOMU_COLORS[1]=10-15

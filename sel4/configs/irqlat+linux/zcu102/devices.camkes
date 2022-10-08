@@ -1,0 +1,64 @@
+/*
+ * Copyright 2018, Data61, CSIRO (ABN 41 687 119 230)
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
+#include <configurations/vm.h>
+
+assembly {
+	composition {}
+	configuration {
+
+        vm0.linux_address_config = {
+            "linux_ram_base" : "0x40000000",
+            "linux_ram_size" : "0x8000000",
+        };
+
+        vm0.linux_image_config = {
+            "linux_name": "baremetal",
+        };
+        vm0.num_vcpus = 1;
+        vm0.vcpu_affinity = [3];
+        vm0.affinity = 3;
+
+        vm0.dtb = dtb([
+            {"path": "/amba/serial@ff010000"},
+            {"path": "/amba/timer@ff110000"},
+        ]);
+        vm0.mmios = [
+                    "0xf9060000:0x1000:12", // Interrupt Controller Virtual CPU //interface (Virtual Machine view)
+        ];
+        vm0.untyped_mmios = [
+                    "0x40000000:27", // Linux kernel memory regions
+        ];
+
+       vm1.linux_address_config = {
+            "linux_ram_base" : "0x48000000",
+            "linux_ram_size" : "0x20000000",
+            "dtb_addr" : "0x5f000000",
+        };
+
+        vm1.linux_image_config = {
+            "linux_name": "linux",
+            "linux_bootcmdline" : "earlycon console=ttyPS0,115200n8 clk_ignore_unused",
+            "linux_stdout" : "/amba/serial@ff000000",
+        };
+
+        vm1.num_vcpus = 3;
+        vm1.vcpu_affinity = [0, 1, 2];
+        vm1.affinity = 0;
+
+        vm1.dtb = dtb([
+            {"path": "/amba/serial@ff000000"},
+        ]);
+        vm1.mmios = [
+            "0xf9060000:0x1000:12", // Interrupt Controller Virtual CPU terface ////(Virtual Machine view)
+        ];
+        vm1.untyped_mmios = [   
+            "0x48000000:27", // Linux kernel memory regions
+            "0x50000000:28", // Linux kernel memory regions
+            "0x60000000:28", // Linux kernel memory regions
+        ];
+	}
+}

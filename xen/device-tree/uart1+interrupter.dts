@@ -1,0 +1,52 @@
+/dts-v1/;
+
+/ {
+    #address-cells = <2>;
+    #size-cells = <1>;
+
+    gic: gic {
+        #interrupt-cells = <3>;
+        interrupt-controller;
+    };
+
+    passthrough {
+        compatible = "simple-bus";
+        ranges;
+        #address-cells = <2>;
+        #size-cells = <1>;
+
+    	uartclk: uartclk {
+            compatible = "fixed-clock";
+            #clock-cells = <0>;
+            clock-frequency = <100000000>;
+	    };
+
+        serial1@ff010000 {
+            xen,path = "/amba/serial@ff010000";
+            xen,reg = <0x0 0xff010000 0x1000 0x0 0xff010000>;
+            xen,force-assign-without-iommu;
+
+            compatible = "cdns,uart-r1p12", "xlnx,xuartps";
+            reg = <0x00 0xff010000 0x1000>;
+		 	clock-names = "uart_clk", "pclk";
+		 	clocks = <&uartclk>, <&uartclk>;
+            interrupt-parent = <&gic>;
+            interrupts = <0x00 0x16 0x04>;
+            status = "okay";
+        };
+
+		interrupter@a0000000 {
+            xen,path = "/amba_pl@0/interrupter@a0000000";
+            xen,reg = <0x0 0xa0000000 0x1000 0x0 0xa0000000>;
+            xen,force-assign-without-iommu;
+
+			interrupt-parent = <&gic>;
+			interrupts = 
+                <0x00 89 0x04 0x00 90 0x04 0x00 91 0x04 0x00 92 0x04 0x00 93 0x04 0x00 94 0x04 0x00 95 0x04 0x00 96 0x04>;
+			reg = <0x00 0xa0000000 0x00 0x1000>;
+            status = "okay";
+		};
+       
+    };
+};
+

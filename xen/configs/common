@@ -1,0 +1,18 @@
+MEMORY_START="0x0"
+MEMORY_END="0x80000000"
+MAX_COLORS=15
+
+LOG_LEVEL=none
+USE_COLORING=false
+
+DEVICE_TREE="xen/device-tree/xen.dtb"
+XEN="xen/xen/xen/xen"
+XEN_COLORS=0-15
+
+
+DOM0=true #include dom0 by default
+DOM0_CPUS=1
+DOM0_MEM=512M
+DOM0_KERNEL="dom0-rootcell/linux/arch/arm64/boot/Image"
+DOM0_CMD="console=hvc0 earlycon=xen earlyprintk=xen clk_ignore_unused root=/dev/mmcblk0p2 rw rootwait"
+DOM0_COLORS=0-15

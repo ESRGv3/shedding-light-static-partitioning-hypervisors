@@ -1,0 +1,14 @@
+source $(dirname $(realpath $BASH_SOURCE))/common
+
+CONFIG_NAME="ipi+col"
+DOM0=false
+
+NUM_DOMUS=1
+DOMU_KERNEL[0]="guests/ipi/build/zcu104/baremetal.bin"
+DOMU_PASSTHROUGH_DTB[0]="xen/device-tree/uart1.dtb"
+DOMU_MEM[0]=128
+DOMU_VCPUS[0]=2
+
+USE_COLORING=true
+XEN_COLORS=0-$MAX_COLORS
+DOMU_COLORS[0]=0-7
