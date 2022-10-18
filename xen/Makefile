@@ -12,9 +12,7 @@ build: $(target)
 
 $(target):
 	export XEN_TARGET_ARCH=arm64 CROSS_COMPILE=aarch64-none-linux-gnu- && \
-		cd $(xen_dir)/xen/xen \
-		make defconfig && \
-		make -j$(nproc)
+		make -C $(xen_dir)/xen/xen -j$(nproc)
 
 install: $(target) $(dtbs)
 	$(imagebuilder)/scripts/uboot-script-gen -c $(configs) \
