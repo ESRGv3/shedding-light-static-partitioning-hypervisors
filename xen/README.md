@@ -3,20 +3,15 @@
 
 ```
 # cd $(SHEDLIGHT)xen/xen/xen
-# export XEN_TARGET_ARCH=arm64 CROSS_COMPILE=aarch64-none-linux-gnu-
-# make defconfig 
+# export XEN_TARGET_ARCH=arm64 CROSS_COMPILE=aarch64-none-elf-
+# cp ../../xen-minimal-config .config && make oldconfig
 ```
 
-Enable the following options:
- - CONFIG_EXPERT
- - CONFIG_UNSUPPORTED
- - CONFIG_STATIC_MEMORY
- - CONFIG_STATIC_SHM
-
-Note that you will need to enable/disable the CACHE_COLORING option, according 
-to the config your using. This is because if CACHE_COLORING is enabled in Kconfig
-but is not actually used (lets say you assign all colors to all domains and hypervisor),
-the hypervisor will still use 4K pages for all domain mappings.
+Note that you will need to manually enable/disable the CONFIG_CACHE_COLORING
+option, according to the config your using. This is because if cache colorig
+is enabled in Kconfig but is not actually used (lets say you assign all colors
+to all domains and hypervisor), the hypervisor will still use 4K pages for all
+domain mappings, causing a noticeable impact for the base case benchamrk.
 
 ### Install
 
