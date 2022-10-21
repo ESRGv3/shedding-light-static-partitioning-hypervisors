@@ -21,7 +21,7 @@ card](../../README.md#install-the-hypervisors). Start the board. To start the
 baremetal application type `run baremetal`. The app will start in the second
 console and propmt you to start by pressing `s`. First make sure you are
 captuting the output and saving it to a file in the
-*$SHEDLIGHT/experiments/irqlat-base* directory and name it *baremetal+solo*.
+*$SHEDLIGHT/experiments/irqlat/irqlat-base* directory and name it *baremetal+solo*.
 
 ## Base and interferenece latency experiments
 
@@ -45,16 +45,16 @@ Then, again, [copy the contents of the install directory to the sd
 card](../../README.md#install-the-hypervisors) and start the board. Type `run
 $HYPERVISOR` and repeat the procedure described
 [above](#run-the-baremetal-base-case). Save the result for each configuration
-as *$HYPERVISOR+$CONFIG* in *$SHEDLIGHT/experiments/irqlat-base*, without the
-name of the benchmark. For example, for Xen running the **irqlat+interf**
-configuration save it as *xen+interf*. For the base case of just **irqlat**
-save it as *$HYPERVISOR+solo*.
+as *$HYPERVISOR+$CONFIG* in *$SHEDLIGHT/experiments/irqlat/irqlat-base*,
+without the name of the benchmark. For example, for Xen running the
+**irqlat+interf** configuration save it as *xen+interf*. For the base case of
+just **irqlat** save it as *$HYPERVISOR+solo*.
 
 After running all experiments for the hypervisor/configurations you wish to 
 assess, to view the resulting plots:
 
 ```
-cd $SHEDLIGHT/experiments/irqlat-base
+cd $SHEDLIGHT/experiments/irqlat/irqlat-base
 ./irqlat.py
 ```
 
