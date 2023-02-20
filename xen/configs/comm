@@ -9,14 +9,14 @@ SHMEM_SIZE[0]=0x1001000
 
 NUM_DOMUS=2
 
-DOMU_KERNEL[0]="guests/comm/tx/build/zcu104-XEN/baremetal.bin"
+DOMU_KERNEL[0]="guests/comm/transfer/tx/build/zcu104-XEN/baremetal.bin"
 DOMU_PASSTHROUGH_DTB[0]="xen/device-tree/uart1.dtb"
 DOMU_MEM[0]=128
 DOMU_VCPUS[0]=1
 DOMU_SHMEM[0]=0,0x30000000
 DOMU_EVTCHN[0]=1,1,0
 
-DOMU_KERNEL[1]="guests/comm/rx/build/zcu104-XEN/baremetal.bin"
+DOMU_KERNEL[1]="guests/comm/transfer/rx/build/zcu104-XEN/baremetal.bin"
 DOMU_PASSTHROUGH_DTB[1]="xen/device-tree/uart0.dtb"
 DOMU_MEM[1]=128
 DOMU_VCPUS[1]=1
