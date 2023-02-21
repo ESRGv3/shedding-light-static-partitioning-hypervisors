@@ -3,7 +3,7 @@
 First of all you need to clone this repo and its submodules:
 
 ```
-git clone --recursive git@gitlab.com:ESRGv3/shedding-light-paper/shedding-light-static-partitioning-hypervisors.git
+git clone --recursive git@gitlab.com:ESRGv3/shedding-light-static-partitioning-hypervisors.git
 ```
 
 ----
