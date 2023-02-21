@@ -8,7 +8,9 @@ target:=$(bao_dir)/bin/zcu104/builtin-configs/$(CONFIG)/bao.bin
 linux_image:=$(realpath $(SHEDLIGHT)guests/linux/linux/arch/arm64/boot/Image)
 device_tree_dir:=$(realpath device-tree)
 linux_dtb:=$(device_tree_dir)/linux.dtb
+ifneq ($(filter $(CONFIG), mibench),)
 linux:=$(bao_dir)/lloader/linux.bin
+endif
 
 build: $(target)
 
