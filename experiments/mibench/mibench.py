@@ -43,7 +43,7 @@ def process_benchmark(directory, hyp, base=None):
         return None
     for l in open(file, 'r'):
         l =l.strip()
-        r = re.search('mibench/.*/.*',l)
+        r = re.search('-> mibench/.*/.*',l)
         if r is not None:
             (m,s,b) = l.split('/')
             bench = b
@@ -111,11 +111,11 @@ colors = [
 colors = [[lighten_color(c, 1/(i/4+1))] for (c, r) in colors for i in range(0,r)]
 colors = reduce(lambda x, y: x + y, colors)
 
-base = [[bench, val] for [_, bench, val] in process_benchmark(directory,base_case + "+solo")]
+base = [[bench, val] for [_, bench, val] in process_benchmark(directory,base_case)]
 base = pd.DataFrame(base, columns = ['bench', 'val'])
 base = {b: float(base[base['bench'] == b].mean()) for b in base['bench'].unique()}
 
-frames = [f for h in hypervisors for f in process_benchmark(directory,h + "+solo", base)]
+frames = [f for h in hypervisors for f in process_benchmark(directory,h, base)]
 frames = pd.DataFrame(frames, columns = ['hyp', 'bench', 'val'])
 frames = frames[[x in benchs for x in frames['bench']]]
 
@@ -139,13 +139,13 @@ plt.tight_layout()
 
 hyp_events = []
 for hyp in hypervisors:
-    file = directory + "/" +  hyp + "+solo"
+    file = directory + "/" +  hyp
     if not path.exists(file):
         continue
     events = open(file,'r')
     for line in events:
         line = line.strip()
-        r = re.search('mibench/*', line)
+        r = re.search('-> mibench/*', line)
         if r is not None:
             bench = r.string
             continue
@@ -159,7 +159,7 @@ for hyp in hypervisors:
                 event = rawevent
                 level = 'ukh'
             event = event_map[event] + ':' + level
-            bench_text = bench.removeprefix("mibench/")
+            bench_text = bench.removeprefix("-> mibench/")
             bench_text = bench_text[bench_text.find('/')+1:]
             hyp_events.append([hyp, bench_text, event, int(count)])
 
@@ -212,130 +212,130 @@ for e, b, g in graphs:
     plt.subplots_adjust(left=0.2, right=0.995, top=0.995, bottom=0.05)
     fig.canvas.manager.set_window_title(g['ylabel'])
 
-#     for h in ['bao', 'jailhouse', 'xen', 'sel4']:
-#         x = pd.Series([frames[(frames['hyp'] == h) & (frames['bench'] == b)]['val'].mean() for b in benchs])
-#         y = pd.Series([i for i in tmp[tmp['hyp'] == h]['value']])
-#         corr = x.corr(y)
-#         correlations.append([h, e, corr])
+    for h in ['bao', 'jailhouse', 'xen', 'sel4']:
+        x = pd.Series([frames[(frames['hyp'] == h) & (frames['bench'] == b)]['val'].mean() for b in benchs])
+        y = pd.Series([i for i in tmp[tmp['hyp'] == h]['value']])
+        corr = x.corr(y)
+        correlations.append([h, e, corr])
 
-# correlations.sort(reverse=True, key=(lambda x: x[2]))
-# for h, e, v in correlations:
-#     print(f"{h},{e}: {v:.2f}")
-
-
-## nosuper mibench ###############################################################
-
-directory = "mibench-nosuper"
-
-colors = [
-    ("tab:orange", 1),
-    ("tab:green", 1),
-    ("tab:blue", 1),
-    ("tab:red", 1)
-]
-colors = [[lighten_color(c, 1/(i/4+1))] for (c, r) in colors for i in range(0,r)]
-colors = reduce(lambda x, y: x + y, colors)
-
-base = [[bench, val] for [_, bench, val] in process_benchmark(directory,base_case+"+solo")]
-base = pd.DataFrame(base, columns = ['bench', 'val'])
-base = {b: float(base[base['bench'] == b].mean()) for b in base['bench'].unique()}
-
-frames = [f for h in hypervisors for f in process_benchmark(directory,h+"+solo", base)]
-frames = pd.DataFrame(frames, columns = ['hyp', 'bench', 'val'])
-frames = frames[[x in benchs for x in frames['bench']]]
-
-fig = plt.figure(figsize=(4,2))
-fig.canvas.manager.set_window_title(directory)
-print(frames)
-bp = sns.barplot(data=frames,x='bench', y='val', hue='hyp', edgecolor='black', palette=colors, errwidth = 1, capsize=0.1)
-plt.xlabel(None)
-plt.ylabel('% Perforance Degradation')
-plt.xticks(None)
-_, labels = plt.xticks()
-labels = [l.get_text().replace('-','\n') for l in labels]
-plt.xticks(np.arange(len(labels)), labels)
-# plt.xticks(rotation=90)
-plt.legend(loc = 'upper right').set_title(None)
-# plt.legend(bbox_to_anchor =(0.65, 1.25)).set_title(None)
-# plt.ylim(bottom=1.0)
-plt.grid(which='both', axis='y', linestyle='--')
-plt.yticks(np.arange(0,9,1))
-plt.ylabel(None)
-plt.xticks([])
-plt.legend().remove()
-plt.tight_layout()
-plt.subplots_adjust(left=0.1, right=0.995, top=0.995, bottom=0.05)
-# plt.get_current_fig_manager().window.showMaximized()
+correlations.sort(reverse=True, key=(lambda x: x[2]))
+for h, e, v in correlations:
+    print(f"{h},{e}: {v:.2f}")
 
 
-hyp_events = []
-for hyp in hypervisors:
-    file = directory + "/" +  hyp + "+solo"
-    if not path.exists(file):
-        continue
-    events = open(file,'r')
-    for line in events:
-        line = line.strip()
-        r = re.search('mibench/*', line)
-        if r is not None:
-            bench = r.string
-            continue
-        r = re.search('[0-9]+ *r[0-9A-Fa-f]+(:[ukh]+)?', line)
-        if r is not None:
-            (s, e) = r.span()
-            (count, rawevent) = r.string[:e].split()
-            (event, level) = rawevent.split(':')
-            event = event_map[event] + ':' + level
-            bench_text = bench.removeprefix("mibench/")
-            bench_text = bench_text[bench_text.find('/')+1:]
-            hyp_events.append([hyp, bench_text, event, int(count)])
+# ## nosuper mibench ###############################################################
 
-evt_df = pd.DataFrame(columns=['hyp','bench','event','value'], data=hyp_events)
-evt_df = evt_df[[x in benchs for x in evt_df['bench']]]
+# directory = "mibench-nosuper"
 
-graphs = [
-    ('itlb_l1_refill:uk', 'inst_ret:uk', {'ylabel':'Guest iTLB Miss per\nInstruction Retired'}),
-    # ('dtlb_l1_refill:uk', 'inst_ret:uk', {'ylabel':'Guest dTLB Miss per\nInstruction Retired'}),
-]
+# colors = [
+#     ("tab:orange", 1),
+#     ("tab:green", 1),
+#     ("tab:blue", 1),
+#     ("tab:red", 1)
+# ]
+# colors = [[lighten_color(c, 1/(i/4+1))] for (c, r) in colors for i in range(0,r)]
+# colors = reduce(lambda x, y: x + y, colors)
 
-correlations = []
-for e, b, g in graphs:
-    fig_count=1
-    fig = plt.figure(figsize=(4,2))
-    tmp = evt_df[evt_df['event'] == e]
-    tmp = tmp.drop(columns=['event'])
-    data = []
-    for i, r in tmp.iterrows():
-        value = int(r['value'])
-        if b is not None:
-            value /= int(evt_df[(evt_df['event'] == b) & (evt_df['bench'] == r['bench']) & (evt_df['hyp'] == r['hyp'])]['value'])
-        data.append([r['hyp'],r['bench'], value])
-    tmp = pd.DataFrame(columns=['hyp','bench','value'], data=data)  
-    tmp.sort_values(by=['bench'])
-    sns.barplot(data=tmp,x='bench', y='value', hue='hyp', edgecolor='black', palette=colors)
-    fig_count+=1
-    plt.legend().set_title(None)
-    # plt.legend().remove()
-    plt.ylabel(None)
-    plt.xlabel(None)
-    # plt.xticks(rotation=45)
-    # plt.xticks(ticks=range(24), labels=range(24))
-    plt.xticks(None)
-    _, labels = plt.xticks()
-    labels = [l.get_text().replace('-','\n') for l in labels]
-    plt.xticks(np.arange(len(labels)), labels)
-    title = e
-    if b is not None:
-        title += "/" + b
-    plt.grid(which='both', axis='y', linestyle='--')
-    plt.ylabel(None)
-    plt.xticks([])
-    plt.legend().remove()
-    plt.tight_layout()
-    plt.subplots_adjust(left=0.2, right=0.995, top=0.990, bottom=0.05)
-    fig.canvas.manager.set_window_title('nosuper-' + g['ylabel'])
+# base = [[bench, val] for [_, bench, val] in process_benchmark(directory,base_case)]
+# base = pd.DataFrame(base, columns = ['bench', 'val'])
+# base = {b: float(base[base['bench'] == b].mean()) for b in base['bench'].unique()}
 
-# ## interference #############################################################
+# frames = [f for h in hypervisors for f in process_benchmark(directory,h, base)]
+# frames = pd.DataFrame(frames, columns = ['hyp', 'bench', 'val'])
+# frames = frames[[x in benchs for x in frames['bench']]]
+
+# fig = plt.figure(figsize=(4,2))
+# fig.canvas.manager.set_window_title(directory)
+# print(frames)
+# bp = sns.barplot(data=frames,x='bench', y='val', hue='hyp', edgecolor='black', palette=colors, errwidth = 1, capsize=0.1)
+# plt.xlabel(None)
+# plt.ylabel('% Perforance Degradation')
+# plt.xticks(None)
+# _, labels = plt.xticks()
+# labels = [l.get_text().replace('-','\n') for l in labels]
+# plt.xticks(np.arange(len(labels)), labels)
+# # plt.xticks(rotation=90)
+# plt.legend(loc = 'upper right').set_title(None)
+# # plt.legend(bbox_to_anchor =(0.65, 1.25)).set_title(None)
+# # plt.ylim(bottom=1.0)
+# plt.grid(which='both', axis='y', linestyle='--')
+# plt.yticks(np.arange(0,9,1))
+# plt.ylabel(None)
+# plt.xticks([])
+# plt.legend().remove()
+# plt.tight_layout()
+# plt.subplots_adjust(left=0.1, right=0.995, top=0.995, bottom=0.05)
+# # plt.get_current_fig_manager().window.showMaximized()
+
+
+# hyp_events = []
+# for hyp in hypervisors:
+#     file = directory + "/" +  hyp
+#     if not path.exists(file):
+#         continue
+#     events = open(file,'r')
+#     for line in events:
+#         line = line.strip()
+#         r = re.search('-> mibench/*', line)
+#         if r is not None:
+#             bench = r.string
+#             continue
+#         r = re.search('[0-9]+ *r[0-9A-Fa-f]+(:[ukh]+)?', line)
+#         if r is not None:
+#             (s, e) = r.span()
+#             (count, rawevent) = r.string[:e].split()
+#             (event, level) = rawevent.split(':')
+#             event = event_map[event] + ':' + level
+#             bench_text = bench.removeprefix("-> mibench/")
+#             bench_text = bench_text[bench_text.find('/')+1:]
+#             hyp_events.append([hyp, bench_text, event, int(count)])
+
+# evt_df = pd.DataFrame(columns=['hyp','bench','event','value'], data=hyp_events)
+# evt_df = evt_df[[x in benchs for x in evt_df['bench']]]
+
+# graphs = [
+#     ('itlb_l1_refill:uk', 'inst_ret:uk', {'ylabel':'Guest iTLB Miss per\nInstruction Retired'}),
+#     # ('dtlb_l1_refill:uk', 'inst_ret:uk', {'ylabel':'Guest dTLB Miss per\nInstruction Retired'}),
+# ]
+
+# correlations = []
+# for e, b, g in graphs:
+#     fig_count=1
+#     fig = plt.figure(figsize=(4,2))
+#     tmp = evt_df[evt_df['event'] == e]
+#     tmp = tmp.drop(columns=['event'])
+#     data = []
+#     for i, r in tmp.iterrows():
+#         value = int(r['value'])
+#         if b is not None:
+#             value /= int(evt_df[(evt_df['event'] == b) & (evt_df['bench'] == r['bench']) & (evt_df['hyp'] == r['hyp'])]['value'])
+#         data.append([r['hyp'],r['bench'], value])
+#     tmp = pd.DataFrame(columns=['hyp','bench','value'], data=data)  
+#     tmp.sort_values(by=['bench'])
+#     sns.barplot(data=tmp,x='bench', y='value', hue='hyp', edgecolor='black', palette=colors)
+#     fig_count+=1
+#     plt.legend().set_title(None)
+#     # plt.legend().remove()
+#     plt.ylabel(None)
+#     plt.xlabel(None)
+#     # plt.xticks(rotation=45)
+#     # plt.xticks(ticks=range(24), labels=range(24))
+#     plt.xticks(None)
+#     _, labels = plt.xticks()
+#     labels = [l.get_text().replace('-','\n') for l in labels]
+#     plt.xticks(np.arange(len(labels)), labels)
+#     title = e
+#     if b is not None:
+#         title += "/" + b
+#     plt.grid(which='both', axis='y', linestyle='--')
+#     plt.ylabel(None)
+#     plt.xticks([])
+#     plt.legend().remove()
+#     plt.tight_layout()
+#     plt.subplots_adjust(left=0.2, right=0.995, top=0.990, bottom=0.05)
+#     fig.canvas.manager.set_window_title('nosuper-' + g['ylabel'])
+
+# # ## interference #############################################################
 directory = "mibench-base"
 
 
@@ -363,7 +363,7 @@ colors = [
 colors = [[lighten_color(c, 1/(i/4+1))] for (c, r) in colors for i in range(0,r)]
 colors = reduce(lambda x, y: x + y, colors)
 
-base = [[bench, val] for [_, bench, val] in process_benchmark(directory,base_case + "+solo")]
+base = [[bench, val] for [_, bench, val] in process_benchmark(directory,base_case)]
 base = pd.DataFrame(base, columns = ['bench', 'val'])
 base = {b: float(base[base['bench'] == b].mean()) for b in base['bench'].unique()}
 
@@ -392,14 +392,14 @@ plt.tight_layout()
 
 
 hyp_events = []
-for hyp in [base_case + "+solo"] + hypervisors:
+for hyp in [base_case] + hypervisors:
     file = directory + "/" +  hyp
     if not path.exists(file):
         continue
     events = open(file,'r')
     for line in events:
         line = line.strip()
-        r = re.search('mibench/*', line)
+        r = re.search('-> mibench/*', line)
         if r is not None:
             bench = r.string
             continue
@@ -409,7 +409,7 @@ for hyp in [base_case + "+solo"] + hypervisors:
             (count, rawevent) = r.string[:e].split()
             (event, level) = rawevent.split(':')
             event = event_map[event] + ':' + level
-            bench_text = bench.removeprefix("mibench/")
+            bench_text = bench.removeprefix("-> mibench/")
             bench_text = bench_text[bench_text.find('/')+1:]
             hyp_events.append([hyp, bench_text, event, int(count)])
 
@@ -440,10 +440,10 @@ for e, b, g in graphs:
     data = []
     for i, r in tmp.iterrows():
         value = int(r['value'])
-        base_value = int(evt_df[(evt_df['event'] == e) & (evt_df['bench'] == r['bench']) & (evt_df['hyp'] == base_case+"+solo")]['value'])
+        base_value = int(evt_df[(evt_df['event'] == e) & (evt_df['bench'] == r['bench']) & (evt_df['hyp'] == base_case)]['value'])
         if b is not None:
             value /= int(evt_df[(evt_df['event'] == b) & (evt_df['bench'] == r['bench']) & (evt_df['hyp'] == r['hyp'])]['value'])
-            base_value /= int(evt_df[(evt_df['event'] == b) & (evt_df['bench'] == r['bench']) & (evt_df['hyp'] == base_case+"+solo")]['value'])
+            base_value /= int(evt_df[(evt_df['event'] == b) & (evt_df['bench'] == r['bench']) & (evt_df['hyp'] == base_case)]['value'])
             # print(f"value {value}; base_value {base_value}")
             value -= base_value
         data.append([r['hyp'],r['bench'], value])

@@ -21,11 +21,11 @@ hypervisors = [
 
 test_label = "test"
 tests = [
-    "base",
-    "col",
-    "interf",
-    "interf+col",
-    "interf+col+hypcol"
+    "",
+    "+col",
+    "+interf",
+    "+interf+col",
+    "+interf+col+hypcol"
 ]
 
 metrics = [
@@ -58,7 +58,7 @@ fig_count = fig_count*100 + fig_count*10
 
 def hyp_frame(hyp, test):
     try:
-        file = open(hyp + "+" + test)
+        file = open(hyp + test)
     except FileNotFoundError:
         return pd.DataFrame([])
 

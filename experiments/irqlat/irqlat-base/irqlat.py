@@ -21,17 +21,16 @@ hypervisors = [
 
 test_label = "test"
 tests = [
-    "solo",
-    "col",
-    "interf",
-    "interf+col",
-    "interf+col+hypcol"
+    "",
+    "+col",
+    "+interf",
+    "+interf+col",
+    "+interf+col+hypcol"
 ]
 
 metrics = [
     ["irqlat"],
 ]
-
 
 def lighten_color(color, amount=0.5):
     import matplotlib.colors as mc
@@ -58,7 +57,7 @@ fig_count = fig_count*100 + fig_count*10
 
 def hyp_frame(hyp, test):
     try:
-        file = open(hyp + "+" + test)
+        file = open(hyp + test)
     except FileNotFoundError:
         return pd.DataFrame([])
 
@@ -90,31 +89,7 @@ frames['irqlat'] = frames['irqlat']*10
 
 ########################################
 
-# frames_base = frames
-
-# fig = plt.figure(figsize=(12,3))
-
-# cap_width = 1 / (len(test_label)*2.5)
-# hart = sns.barplot(data=frames_base, x=test_label, y="irqlat", hue=hyp_label, edgecolor='black', errwidth = 1.5, palette=colors, capsize = cap_width)
-# plt.legend(loc = 'upper left').set_title(None)
-# plt.xlabel(None)
-# plt.xticks([])
-# plt.ylabel('Interrupt Latency (ns)')
-# plt.subplots_adjust(left=0.1, right=0.995, top=0.990, bottom=0.01)
-# fig = plt.figure(figsize=(12,3))
-# chart = sns.violinplot(data=frames_base, x=test_label, y="irqlat", hue=hyp_label, scale="width", palette=colors)
-# # chart = sns.boxplot(data=frames_base, x=test_label, y="irqlat", hue=hyp_label)
-# plt.legend(loc = 'upper left').set_title(None)
-# plt.xlabel(None)
-# plt.xticks([])
-# plt.ylabel('Interrupt Latency (ns)')
-# plt.subplots_adjust(left=0.15, right=0.995, top=0.990, bottom=0.01)
-# plt.grid(which='both', axis='y', linestyle='--')
-
-
-########################################
-
-frames_base = frames[frames['test'] == 'solo']
+frames_base = frames[frames['test'] == '']
 
 fig = plt.figure(figsize=(6,3))
 plt.ylim(0,10000)
@@ -134,7 +109,7 @@ plt.xticks([])
 plt.ylabel('Interrupt Latency (ns)')
 plt.subplots_adjust(left=0.13, right=0.995, top=0.990, bottom=0.01)
 
-df = frames[(frames['test'] == 'solo')][['hyp', 'irqlat']]
+df = frames[(frames['test'] == '')][['hyp', 'irqlat']]
 
 ###########################################
 
@@ -149,7 +124,7 @@ colors = reduce(lambda x, y: x + y, colors)
 colors_attenuated = [[lighten_color(c, 0.2)] for (c, r) in colors_base for i in range(0,r)]
 colors_attenuated = reduce(lambda x, y: x + y, colors_attenuated)
 
-frames_interf = frames[(frames['hyp'] != 'baremetal') & (frames['test'] != 'solo')]
+frames_interf = frames[(frames['hyp'] != 'baremetal')]
 
 fig = plt.figure(figsize=(6,3))
 plt.ylim(-2500,111000)
@@ -163,16 +138,8 @@ chart = sns.violinplot(data=frames_interf, x=test_label, y="irqlat", palette=col
 plt.legend().set_title(None)
 plt.legend(handles[1:5], labels[1:5], loc = 'upper right', ).set_title(None)
 plt.ylabel('Interrupt Latency (ns)')
+plt.xticks(range(0, 5), ['solo', 'col', 'interf', 'interf+col', 'interf+col\n+hypcol'])
 plt.subplots_adjust(left=0.15, right=0.995, top=0.990, bottom=0.1)
-
-# df = frames[(frames['hyp'] != 'baremetal') & (frames['test'] == 'interf')][['hyp', 'irqlat']]
-# print(df.pivot_table(index=df.index, columns='hyp', values='irqlat', aggfunc='first').mean())
-
-# df = frames[(frames['hyp'] != 'baremetal') & (frames['test'] == 'interf+col')][['hyp', 'irqlat']]
-# print(df.pivot_table(index=df.index, columns='hyp', values='irqlat', aggfunc='first').mean())
-
-# df = frames[(frames['hyp'] != 'baremetal') & (frames['test'] == 'interf+col+hypcol')][['hyp', 'irqlat']]
-# print(df.pivot_table(index=df.index, columns='hyp', values='irqlat', aggfunc='first').mean())
 
 frames = frames[frames['test'] != 'col']
 
@@ -221,43 +188,5 @@ plt.xticks(range(0, 4), ['solo', 'interf', 'interf+col', 'interf+col\n+hypcol'])
 plt.subplots_adjust(left=0.1, right=0.995, top=0.995, bottom=0.15)
 fig.canvas.manager.set_window_title('l2$d_miss_el2')
 
-
-## NOT USED IN THE PAPER
-
-# metrics = [
-#     ["exceptions_el1", "exceptions_el2", "irqs_el1", "irqs_el2"],
-#     ["l1$i_miss_el1", "l1$i_miss_el2", "l1$d_miss_el1", "l1$d_miss_el2", "l2$d_miss_el1", "l2$d_miss_el2" ],
-#     ["tlb_il1_miss_el1", "tlb_il1_miss_el2", "tlb_dl1_miss_el1", "tlb_dl1_miss_el2"],
-#     ["bus_acc_el1", "bus_acc_el2"],
-# ]
-
-# def dimensions(n, max=8):
-#     max_width = 4
-#     l = 2
-#     while True:
-#         for w in range(1, max_width+1):
-#             if n <= l*w:
-#                 return (l, w)
-#         l += 1
-
-# for metrics in metrics:
-#     fig = plt.figure()
-#     fig_count = int(math.ceil(math.sqrt(len(metrics))))
-#     fig_count = fig_count*100 + fig_count*10
-#     fig_count=1
-#     fig_l,fig_w = dimensions(len(metrics))
-#     for metric in metrics:
-#         frames_melted = pd.melt(frames, id_vars=[hyp_label, test_label], value_vars=metric)
-#         ax = plt.subplot(fig_l,fig_w,fig_count)
-#         plt.grid(which='both', axis='y', linestyle='--')
-#         cap_width = 1 / (len(test_label)*2.5)
-#         chart = sns.barplot(data=frames_melted, x=test_label, y='value', hue=hyp_label, edgecolor='black', errwidth = 1.5, palette=colors, capsize = cap_width)
-#         plt.legend(loc = 'upper left').set_title(None)
-#         plt.xlabel(None)
-#         plt.xticks(None)
-#         plt.title(metric)
-#         plt.grid()
-#         plt.tight_layout()
-#         fig_count += 1
 
 plt.show()
