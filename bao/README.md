@@ -1,12 +1,20 @@
 # Bao
 
-## Build and Installation
+# Build
 
-All build and instalation steps are automated in the Makefile next to this
-readme. It install the hypervisor and guest images in the sd card are automated
-in the Makefile next to this readme. Run `make CONFIG=$TARGET_CONFIG install`
-so that it installs it in your sdcard according to top-level readme.
-$TARGET_CONFIG is the name of one of the directories in *configs*.
+```
+# cd $SHEDLIGHT/bao/bao
+# make PLATFORM=zcu104 CONFIG_BUILTIN=y CONFIG_REPO=$SHEDLIGHT/bao/configs/$CONFIG
+# cp bin/zcu104/builtin-configs/$CONFIG/bao.bin $SHEDLIGHT/install/boot
+```
+
+## Install
+
+Copy all files $SHEDLIGHT/install/boot to your $SDCARD_BOOT.
+
+```
+# cp $SHEDLIGHT/install/boot/* $SDCARD_BOOT
+```
 
 ## Run
 

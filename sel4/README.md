@@ -3,6 +3,7 @@
 # Build
     
 ```
+# cd $SHEDLIGHT/sel4
 # mkdir -p camkes-vmm/build-$CONFIG
 # cd camkes-vmm/build-$CONFIG
 # ../init-build.sh -DCAMKES_VM_APP=$CONFIG -DPLATFORM=zynqmp \	
@@ -14,17 +15,17 @@
 	-DKernelArmExportPTMRUser=1 \
 	-DKernelArmExportVTMRUser=1 \
     -DKernelArmVtimerUpdateVOffset=0 \
-	-DKernelTimerTickMS=60000 \-DCONFIG_REPO=$(realpath ../../configs)
+	-DKernelTimerTickMS=60000 \
+    -DCONFIG_REPO= $SHEDLIGHT/sel4/configs
+# ninja
+# cp capdl-loader-image-arm-zynqmp $SHEDLIGHT/install/boot
 ```
-
-To build, run `ninja`.
-
 ## Install
 
-Copy *capdl-loader-image-arm-zynqmp* to `$SDCARD_BOOT`:
+Copy all files $SHEDLIGHT/install/boot to your $SDCARD_BOOT.
 
 ```
-cp capdl-loader-image-arm-zynqmp $SDCARD_BOOT
+# cp $SHEDLIGHT/install/boot/* $SDCARD_BOOT
 ```
 
 ## Run
