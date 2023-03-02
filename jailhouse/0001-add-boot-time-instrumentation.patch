@@ -1,0 +1,53 @@
+From f29710e5c6492d2ade14f2b8291c70627a152dc7 Mon Sep 17 00:00:00 2001
+From: Jose Martins <josemartins90@gmail.com>
+Date: Tue, 28 Feb 2023 13:52:11 +0000
+Subject: [PATCH] add boot time instrumentation
+
+Signed-off-by: Jose Martins <josemartins90@gmail.com>
+---
+ arch/arm64/kernel/head.S | 6 ++++++
+ init/main.c              | 4 ++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/arch/arm64/kernel/head.S b/arch/arm64/kernel/head.S
+index c5c994a73..736195563 100644
+--- a/arch/arm64/kernel/head.S
++++ b/arch/arm64/kernel/head.S
+@@ -90,6 +90,12 @@
+ 	 */
+ SYM_CODE_START(primary_entry)
+ 	bl	preserve_boot_args
++
++    adrp x0, boot_counter
++    add x0, x0, #:lo12:boot_counter
++    mrs x1, cntpct_el0
++    str x1, [x0]
++
+ 	bl	init_kernel_el			// w0=cpu_boot_mode
+ 	adrp	x23, __PHYS_OFFSET
+ 	and	x23, x23, MIN_KIMG_ALIGN - 1	// KASLR offset, defaults to 0
+diff --git a/init/main.c b/init/main.c
+index 8d97aba78..ea0eae12e 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -1478,6 +1478,8 @@ void __weak free_initmem(void)
+ 	free_initmem_default(POISON_FREE_INITMEM);
+ }
+ 
++uint64_t boot_counter = 0xdeadbeef;
++
+ static int __ref kernel_init(void *unused)
+ {
+ 	int ret;
+@@ -1517,6 +1519,8 @@ static int __ref kernel_init(void *unused)
+ 		       ramdisk_execute_command, ret);
+ 	}
+ 
++    printk("boottime-root %llu\n", boot_counter);
++
+ 	/*
+ 	 * We try each of these until one succeeds.
+ 	 *
+-- 
+2.34.1
+
