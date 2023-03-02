@@ -38,11 +38,11 @@ RUN apt-get update && apt-get install -y software-properties-common && \
     update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1 && \
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3.9 get-pip.py
 
-RUN apt-get install -y mako cmake ccache ninja-build cmake-curses-gui \
+RUN apt-get install -y cmake ccache ninja-build cmake-curses-gui \
         libxml2-utils ncurses-dev doxygen protobuf-compiler python3-protobuf \
         clang libssl-dev libclang-dev libcunit1-dev libsqlite3-dev \
         haskell-stack && stack upgrade --binary-only
-RUN pip install pyelftools pyfdt jinja2 plyplus future aenum bs4 guardonce cmake-format==0.4.5 \
+RUN pip install mako pyelftools pyfdt jinja2 plyplus future aenum bs4 guardonce cmake-format==0.4.5 \
         six pyaml pexpect jsonschema autopep8==1.4.3 lxml libarchive-c sh psutil \
         PyYAML beautifulsoup4 persistent ptyprocess concurrencytest fixtures sortedcontainers \
         extras pycparser pbr ordered-set exceptiongroup hypothesis testtools python-subunit
