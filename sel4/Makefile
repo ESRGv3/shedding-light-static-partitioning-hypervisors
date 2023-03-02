@@ -16,9 +16,7 @@ init-build_cmd:=../init-build.sh -DCAMKES_VM_APP=$(CONFIG) -DPLATFORM=zynqmp \
 	-DKernelArmExportVTMRUser=1 \
 	-DKernelArmVtimerUpdateVOffset=0 \
 	-DKernelTimerTickMS=60000 \
-	-DCONFIG_REPO=$(shell realpath $(configs)) \
-	#-DCapDLLoaderStaticAlloc=ON
-	# -DLibUtilsDefaultZfLogLevel=6
+	-DCONFIG_REPO=$(shell realpath $(configs))
 
 # ifneq ($(filter cloc%,$(MAKECMDGOALS)),)
 # $(error cloc!!)
@@ -43,11 +41,11 @@ cloc: cloc-kernel cloc-vmm
 ignore_platforms:
 
 cloc-vmm: build
-	aarch64-none-linux-gnu-readelf --string-dump=.debug_line_str camkes-vmm/build-$(CONFIG)/vm0.instance.bin | grep -o '\S*\.c' | sort | uniq >  camkes-vmm/build-$(CONFIG)/vmm_srcs.txt
+	aarch64-none-linux-gnu-readelf --string-dump=.debug_line_str camkes-vmm/build-$(CONFIG)/vm0.instance.bin | grep -o '\S*\.c' | grep -v libgcc | sort | uniq >  camkes-vmm/build-$(CONFIG)/vmm_srcs.txt
 	cat camkes-vmm/build-$(CONFIG)/vmm_srcs.txt | xargs cat |  grep -oP '#include.*\.h' | grep -o '\S*\.h' | grep -o '[^<>"]*' |  \
-		xargs -L 1 -I {} find /home/josecm/shedding-light-paper/sel4/camkes-vmm -wholename \*{} | sort | uniq | \
-		grep -v '.*\(x86\|ia32\|mips\|power\|riscv\|aarch32\|elf32\|exynos\|odroid\|tk1\|tx1\|qemu\|tx2\|muslibc\|plat_include\).*' >  camkes-vmm/build-$(CONFIG)/vmm_headers.txt
-	cat camkes-vmm/build-$(CONFIG)/vmm_srcs.txt  camkes-vmm/build-$(CONFIG)/vmm_headers.txt | xargs cloc --by-file-by-lang
+		xargs -L 1 -I {} find $(sel4_dir)/camkes-vmm -wholename \*{} | sort | uniq | \
+		grep -v '.*\(x86\|ia32\|mips\|power\|riscv\|aarch32\|elf32\|exynos\|odroid\|tk1\|tx1\|qemu\|tx2\|muslibc\|libgcc\|plat_include\).*' >  camkes-vmm/build-$(CONFIG)/vmm_headers.txt
+	cat $(sel4_dir)/camkes-vmm/build-$(CONFIG)/vmm_srcs.txt  $(sel4_dir)/camkes-vmm/build-$(CONFIG)/vmm_headers.txt | xargs cloc --by-file-by-lang
 
 
 cloc-kernel: build
