@@ -47,8 +47,8 @@ struct {
 
 	.mem_regions = {
 		/* UART 1 */ {
-			.phys_start = 0xff010000,
-			.virt_start = 0xff010000,
+			.phys_start = 0xff000000,
+			.virt_start = 0xff000000,
 			.size = 0x1000,
 			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
 				JAILHOUSE_MEM_IO | JAILHOUSE_MEM_ROOTSHARED,
@@ -73,7 +73,6 @@ struct {
 			.address = 0xf9010000,
 			.pin_base = 32,
 			.pin_bitmap = {
-				1 << (54 - 32), /* UART1 */
 			},
 		},
 	},

@@ -37,6 +37,7 @@ install-cells: build | $(rootfs_jailhouse_dir)
 	-cp $(SHEDLIGHT)/guests/baremetal/build/zcu104/baremetal.bin $(rootfs_jailhouse_dir)
 	-cp $(SHEDLIGHT)/guests/irqlat/build/zcu104/baremetal.bin $(rootfs_jailhouse_dir)/irqlat.bin
 	-cp $(SHEDLIGHT)/guests/interf/build/zcu104/baremetal.bin $(rootfs_jailhouse_dir)/interf.bin
+	-cp $(SHEDLIGHT)/guests/interf2/build/zcu104/baremetal.bin $(rootfs_jailhouse_dir)/interf2.bin
 	-cp $(SHEDLIGHT)/guests/interf-single/build/zcu104/baremetal.bin $(rootfs_jailhouse_dir)/interf-single.bin
 	-cp $(SHEDLIGHT)/guests/irqstorm/build/zcu104/baremetal.bin $(rootfs_jailhouse_dir)/irqstorm.bin
 	-cp $(SHEDLIGHT)/guests/ipi/build/zcu104/baremetal.bin $(rootfs_jailhouse_dir)/ipi.bin

@@ -1,6 +1,6 @@
 #include <config.h>
 
-VM_IMAGE(linux, "../lloader/linux.bin");
+VM_IMAGE(linux_image, "../../guests/linux/lloader/linux.bin");
 
 struct config config = { 
      
@@ -14,8 +14,8 @@ struct config config = {
 
             .image = {
                 .base_addr = 0x40000000,
-                .load_addr = VM_IMAGE_OFFSET(linux),
-                .size = VM_IMAGE_SIZE(linux),
+                .load_addr = VM_IMAGE_OFFSET(linux_image),
+                .size = VM_IMAGE_SIZE(linux_image),
             },
 
             .colors = 0b00001111,

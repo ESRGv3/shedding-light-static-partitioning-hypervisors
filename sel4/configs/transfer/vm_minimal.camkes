@@ -1,0 +1,64 @@
+/*
+ * Copyright 2017, Data61, CSIRO (ABN 41 687 119 230)
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
+#include <configurations/vm.h>
+
+import <std_connector.camkes>;
+import <global-connectors.camkes>;
+import <vm-connectors.camkes>;
+// import <VM_Arm/VM.camkes>;
+import <devices.camkes>;
+import <global-connectors.camkes>;
+import <VirtQueue/VirtQueue.camkes>;
+import <seL4VMDTBPassthrough.idl4>;
+
+import <FileServerInterface.camkes>;
+import <FileServer/FileServer.camkes>;
+import <SerialServer/SerialServer.camkes>;
+import <TimeServer/TimeServer.camkes>;
+
+
+component VM {
+    VM_INIT_DEF()
+    dataport Buf(0x1000) crossvm_dp_0;
+    emits Signal signal_out;
+    consumes Signal signal_in;
+}
+
+assembly {
+    composition {
+        VM_GENERAL_COMPOSITION_DEF()
+        VM_COMPOSITION_DEF(0)
+        connection seL4VMDTBPassthrough vm0_dtb(from vm0.dtb_self, to vm0.dtb);
+        VM_COMPOSITION_DEF(1)
+        connection seL4VMDTBPassthrough vm1_dtb(from vm1.dtb_self, to vm1.dtb);
+
+        connection seL4GlobalAsynch event_conn_0(from vm0.signal_out,to vm1.signal_in);
+        connection seL4GlobalAsynch event_conn_1(from vm1.signal_out, to vm0.signal_in);
+        connection seL4SharedDataWithCaps cross_vm_conn_0(from vm1.crossvm_dp_0, to vm0.crossvm_dp_0);
+    }
+    configuration {
+        VM_GENERAL_CONFIGURATION_DEF()
+
+        VM_CONFIGURATION_DEF(0)
+        vm0.num_extra_frame_caps = 0;
+        vm0.extra_frame_map_address = 0;
+        vm0.cnode_size_bits = 23;
+        vm0.simple_untyped24_pool = 12;
+
+        VM_CONFIGURATION_DEF(1)
+        vm1.num_extra_frame_caps = 0;
+        vm1.extra_frame_map_address = 0;
+        vm1.cnode_size_bits = 23;
+        vm1.simple_untyped24_pool = 12;
+
+        // vm0.crossvm_dp_0_id = 0;
+        // vm0.crossvm_dp_0_size = 0x801000;
+
+        // vm1.crossvm_dp_0_id = 0;
+        // vm1.crossvm_dp_0_size = 0x801000;
+    }
+}

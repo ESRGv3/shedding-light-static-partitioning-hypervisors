@@ -1,0 +1,17 @@
+source $(dirname $(realpath $BASH_SOURCE))/common
+
+CONFIG_NAME="dual"
+DOM0=false
+
+NUM_DOMUS=2
+
+DOMU_KERNEL[0]="guests/freertos/build/zcu104/freertos.bin"
+DOMU_PASSTHROUGH_DTB[0]="xen/device-tree/uart0.dtb"
+DOMU_MEM[0]=8
+DOMU_VCPUS[0]=1
+
+DOMU_KERNEL[1]="guests/linux/linux/arch/arm64/boot/Image"
+DOMU_PASSTHROUGH_DTB[1]="xen/device-tree/uart1.dtb"
+DOMU_MEM[1]=512
+DOMU_VCPUS[1]=1
+DOMU_BOOTARGS[1]="earlycon console=ttyPS0,115200 rdinit=/root/boot_test"

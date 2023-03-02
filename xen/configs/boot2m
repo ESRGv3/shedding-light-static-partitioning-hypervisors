@@ -1,0 +1,11 @@
+source $(dirname $(realpath $BASH_SOURCE))/common
+
+CONFIG_NAME="boot2m"
+DOM0=false
+LOG_LEVEL=error
+
+NUM_DOMUS=1
+DOMU_KERNEL[0]="guests/boot/build/zcu104/2048k/baremetal.bin"
+DOMU_PASSTHROUGH_DTB[0]="xen/device-tree/uart0.dtb"
+DOMU_MEM[0]=128
+DOMU_VCPUS[0]=1

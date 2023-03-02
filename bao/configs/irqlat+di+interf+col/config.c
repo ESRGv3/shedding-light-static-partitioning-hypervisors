@@ -1,7 +1,7 @@
 #include <config.h>
 
 VM_IMAGE(irqlat, "../../guests/irqlat/build/zcu104/baremetal.bin");
-VM_IMAGE(interf, "../../guests/interf/build/zcu104/baremetal.bin");
+VM_IMAGE(interf, "../../guests/interf2/build/zcu104/baremetal.bin");
 
 struct config config = { 
      

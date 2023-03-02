@@ -19,7 +19,7 @@ if("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
 endif()
 
 AddToFileServer("irqlat" "../../../../../../guests/irqlat/build/zcu104/baremetal.bin")
-AddToFileServer("interf" "../../../../../../guests/interf/build/zcu104@0x48000000/baremetal.bin")
+AddToFileServer("interf" "../../../../../../guests/interf2/build/zcu104@0x48000000/baremetal.bin")
 
 AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB Tk1DeviceFwd Tk1Insecure)
 
