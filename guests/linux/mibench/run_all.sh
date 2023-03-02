@@ -1,85 +1,50 @@
-MIBENCH_DIR=$(realpath .)
+CUR_DIR=$(pwd)
+MIBENCH_DIR=$(realpath $(dirname $0))
 
 WARM_UP=10
 
 cd $MIBENCH_DIR/automotive/qsort
-echo mibench/automotive/qsort-small
+echo "-> mibench/automotive/qsort-small"
 seq $WARM_UP | xargs -Iz ./runme_small.sh
 perf stat --table -n -r $REPETITIONS $EVENTS ./runme_small.sh
-echo mibench/automotive/qsort-large
+echo "-> mibench/automotive/qsort-large"
 seq $WARM_UP | xargs -Iz ./runme_large.sh
 perf stat --table -n -r $REPETITIONS $EVENTS ./runme_large.sh
 
 cd $MIBENCH_DIR/automotive/susan
-echo mibench/automotive/susanc-small
+echo "-> mibench/automotive/susanc-small"
 seq $WARM_UP | xargs -Iz ./runme_small-c.sh
 perf stat --table -n -r $REPETITIONS $EVENTS ./runme_small-c.sh
-echo mibench/automotive/susanc-large
+echo "-> mibench/automotive/susanc-large"
 seq $WARM_UP | xargs -Iz ./runme_large-c.sh
 perf stat --table -n -r $REPETITIONS $EVENTS ./runme_large-c.sh
-echo mibench/automotive/susane-small
+echo "-> mibench/automotive/susane-small"
 seq $WARM_UP | xargs -Iz ./runme_small-e.sh
 perf stat --table -n -r $REPETITIONS $EVENTS ./runme_small-e.sh
-echo mibench/automotive/susane-large
+echo "-> mibench/automotive/susane-large"
 seq $WARM_UP | xargs -Iz ./runme_large-e.sh
 perf stat --table -n -r $REPETITIONS $EVENTS ./runme_large-e.sh
-echo mibench/automotive/susans-small
+echo "-> mibench/automotive/susans-small"
 seq $WARM_UP | xargs -Iz ./runme_small-s.sh
 perf stat --table -n -r $REPETITIONS $EVENTS ./runme_small-s.sh
-echo mibench/automotive/susans-large
+echo "-> mibench/automotive/susans-large"
 seq $WARM_UP | xargs -Iz ./runme_large-s.sh
 perf stat --table -n -r $REPETITIONS $EVENTS ./runme_large-s.sh
 
 cd $MIBENCH_DIR/automotive/bitcount
-echo mibench/automotive/bitcount-small
+echo "-> mibench/automotive/bitcount-small"
 seq $WARM_UP | xargs -Iz ./runme_small.sh
 perf stat --table -n -r $REPETITIONS $EVENTS ./runme_small.sh
-echo mibench/automotive/bitcount-large
+echo "-> mibench/automotive/bitcount-large"
 seq $WARM_UP | xargs -Iz ./runme_large.sh
 perf stat --table -n -r $REPETITIONS $EVENTS ./runme_large.sh
 
 cd $MIBENCH_DIR/automotive/basicmath
-echo mibench/automotive/basicmath-small
+echo "-> mibench/automotive/basicmath-small"
 seq $WARM_UP | xargs -Iz ./runme_small.sh
 perf stat --table -n -r $REPETITIONS $EVENTS ./runme_small.sh
-echo mibench/automotive/basicmath-large
+echo "-> mibench/automotive/basicmath-large"
 seq $WARM_UP | xargs -Iz ./runme_large.sh
 perf stat --table -n -r $REPETITIONS $EVENTS ./runme_large.sh
 
-# cd $MIBENCH_DIR/network/dijkstra
-# echo mibench/network/dijkstra-small
-# perf stat --table -n -r $REPETITIONS $EVENTS ./runme_small.sh
-# echo mibench/network/dijkstra-large
-# perf stat --table -n -r $REPETITIONS $EVENTS ./runme_large.sh
-
-# cd $MIBENCH_DIR/network/patricia
-# echo mibench/network/patricia-small
-# perf stat --table -n -r $REPETITIONS $EVENTS ./runme_small.sh
-# echo mibench/network/patricia-large
-# perf stat --table -n -r $REPETITIONS $EVENTS ./runme_large.sh
-
-# cd $MIBENCH_DIR/security/rijndael
-# echo mibench/security/rijndael-small
-# perf stat --table -n -r $REPETITIONS $EVENTS ./runme_small.sh
-# echo mibench/security/rijndael-large
-# perf stat --table -n -r $REPETITIONS $EVENTS ./runme_large.sh
-
-# cd $MIBENCH_DIR/security/sha
-# echo mibench/security/sha-small
-# perf stat --table -n -r $REPETITIONS $EVENTS ./runme_small.sh
-# echo mibench/security/sha-large
-# perf stat --table -n -r $REPETITIONS $EVENTS ./runme_large.sh
-
-# cd $MIBENCH_DIR/telecomm/FFT
-# echo mibench/telecomm/FFT-small
-# perf stat --table -n -r $REPETITIONS $EVENTS ./runme_small.sh
-# echo mibench/telecomm/FFT-large
-# perf stat --table -n -r $REPETITIONS $EVENTS ./runme_large.sh
-
-# cd $MIBENCH_DIR/telecomm/gsm
-# echo mibench/telecomm/gsm-small
-# perf stat --table -n -r $REPETITIONS $EVENTS ./runme_small.sh
-# echo mibench/telecomm/gsm-large
-# perf stat --table -n -r $REPETITIONS $EVENTS ./runme_large.sh
-
-cd $MIBENCH_DIR
+cd $CUR_DIR

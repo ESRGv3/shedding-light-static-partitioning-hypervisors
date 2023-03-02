@@ -46,6 +46,8 @@ volatile size_t sample_count;
 #define CACHE_LINE_SIZE (64)
 volatile uint8_t cache_l1[2][L1_CACHE_SIZE] __attribute__((aligned(L1_CACHE_SIZE)));
 
+__attribute__((section(".data"))) volatile uint64_t boot_el2 = 0;
+
 const size_t sample_events[] = {
     L1I_CACHE_REFILL ,
     L1I_CACHE_REFILL | EL2_ONLY,
@@ -309,8 +311,11 @@ void main(void){
                 if(!warming_up) {
                     uint64_t timer_end_local = timer_get();
                     pmu_sample(i);
-                    sgi_lat_time[j][sample_count] = sgi_time_get() - timer_prev;
-                    // sgi_lat_time[j][sample_count] = timer_end_local - timer_prev;
+                    if (boot_el2) {
+                        sgi_lat_time[j][sample_count] = 0;
+                    } else {
+                        sgi_lat_time[j][sample_count] = sgi_time_get() - timer_prev;
+                    }
                     ipi_lat_samples[j][sample_count] = timer_end_local - timer_prev;
                 }
 

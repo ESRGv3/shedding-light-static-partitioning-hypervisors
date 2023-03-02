@@ -62,6 +62,9 @@ skip_header:
     b.eq .
     cmp x1, 1
     b.eq _enter_el1
+    adr x1, boot_el2
+    mov x2, 1
+    str x2, [x1]
     mov x1, #0
     msr cntvoff_el2, x1
     mov x1, SPSR_EL1t | SPSR_F | SPSR_I | SPSR_A | SPSR_D

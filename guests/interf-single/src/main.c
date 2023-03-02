@@ -29,7 +29,7 @@ spinlock_t print_lock = SPINLOCK_INITVAL;
 
 #define NUM_CPUS   (1)
 
-#define INTERF_BUF_SIZE (0x100000)
+#define INTERF_BUF_SIZE (0x200000)
 // #define INTERF_BUF_SIZE (0x400000)
 #define CACHE_LINE (64)
 #define CPU_INTERF_BUF_SIZE (INTERF_BUF_SIZE/NUM_CPUS)

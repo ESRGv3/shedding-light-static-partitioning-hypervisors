@@ -25,15 +25,14 @@
 #define COL_SIZE        20   
 #define SAMPLE_FORMAT   "%" XSTR(COL_SIZE) "d"
 #define HEADER_FORMAT   "%" XSTR(COL_SIZE) "s"
-static volatile size_t sample_count;
 
 #define L1_CACHE_SIZE   (32*1024)
 #define CACHE_LINE_SIZE (64)
 volatile uint8_t cache_l1[2][L1_CACHE_SIZE] __attribute__((aligned(L1_CACHE_SIZE)));
 
 const size_t sample_events[] = {
-    L1I_CACHE_REFILL ,
-    L1I_CACHE_REFILL | EL2_ONLY,
+    // L1I_CACHE_REFILL ,
+    // L1I_CACHE_REFILL | EL2_ONLY,
     L1D_CACHE_REFILL,
     L1D_CACHE_REFILL | EL2_ONLY,
     L2D_CACHE_REFILL,
@@ -42,23 +41,22 @@ const size_t sample_events[] = {
     L1I_TLB_REFILL | EL2_ONLY,
     L1D_TLB_REFILL,
     L1D_TLB_REFILL | EL2_ONLY,
-    MEM_ACCESS,
-    MEM_ACCESS | EL2_ONLY,
-    BUS_ACCESS,
-    BUS_ACCESS | EL2_ONLY,
-    EXC_TAKEN,
-    EXC_TAKEN | EL2_ONLY,
-    EXC_IRQ,
-    EXC_IRQ | EL2_ONLY,
-    INST_RETIRED,
-    INST_RETIRED | EL2_ONLY,
+    // MEM_ACCESS,
+    // MEM_ACCESS | EL2_ONLY,
+    // BUS_ACCESS,
+    // BUS_ACCESS | EL2_ONLY,
+    // EXC_TAKEN,
+    // EXC_TAKEN | EL2_ONLY,
+    // EXC_IRQ,
+    // EXC_IRQ | EL2_ONLY,
+    // INST_RETIRED,
+    // INST_RETIRED | EL2_ONLY,
 };
 
 const size_t sample_events_size = sizeof(sample_events)/sizeof(size_t);
-unsigned long pmu_samples[sizeof(sample_events)/sizeof(size_t)][NUM_SAMPLES];
-unsigned long cycle_samples[sizeof(sample_events)/sizeof(size_t)][NUM_SAMPLES];
+unsigned long pmu_samples[NUM_BUFFER_SIZES][sizeof(sample_events)/sizeof(size_t)][NUM_SAMPLES];
+unsigned long cycle_samples[NUM_BUFFER_SIZES][sizeof(sample_events)/sizeof(size_t)][NUM_SAMPLES];
 volatile size_t pmu_used_counters = 0;
-uint64_t time_samples[sizeof(sample_events)/sizeof(size_t)][NUM_SAMPLES];
 
 void pmu_setup_counters(size_t n, const size_t events[]){
     pmu_used_counters = n < pmu_num_counters()? n : pmu_num_counters();
@@ -69,12 +67,12 @@ void pmu_setup_counters(size_t n, const size_t events[]){
     pmu_cycle_enable(true);
 }
 
-void pmu_sample(size_t start) {
+void pmu_sample(size_t start, size_t sample_count, size_t transfer) {
     size_t n = pmu_used_counters;
     for(int i = 0; i < pmu_used_counters; i++){
-        pmu_samples[start+i][sample_count] = pmu_counter_get(i);
+        pmu_samples[transfer][start+i][sample_count] = pmu_counter_get(i);
     }
-     cycle_samples[start/pmu_num_counters()][sample_count] = pmu_cycle_get();
+     cycle_samples[transfer][start/pmu_num_counters()][sample_count] = pmu_cycle_get();
 }
 
 void pmu_setup(size_t start, size_t n) {
@@ -83,59 +81,42 @@ void pmu_setup(size_t start, size_t n) {
     pmu_start();
 }
 
-static inline void pmu_print_header(size_t start) {
-    size_t left_counters = sample_events_size - start;
-    size_t n = left_counters < pmu_num_counters() ? left_counters : pmu_num_counters();
-    for (size_t i = 0; i < n; i++) {
-        uint32_t event = sample_events[start + i];
-        char const * descr =  pmu_event_descr[event & 0xffff]; 
-        descr = descr ? descr : "";
-        uint32_t priv_code = (event >> 24) & 0xc8;
-        const char * priv = priv_code == 0xc8 ? "_el2" : 
-                            priv_code == 0x08 ? "_el1+2" :
-                            "_el1";
-        char buf[COL_SIZE];
-        snprintf(buf, COL_SIZE-1, "%s%s", descr, priv);
-        printf(HEADER_FORMAT, buf);
-    }
-    printf(HEADER_FORMAT, "cycles");
+static char* pmu_get_event_name(size_t start, size_t i) {
+    uint32_t event = sample_events[start + i];
+    char const * descr =  pmu_event_descr[event & 0xffff]; 
+    descr = descr ? descr : "";
+    uint32_t priv_code = (event >> 24) & 0xc8;
+    const char * priv = priv_code == 0xc8 ? "_el2" : 
+                        priv_code == 0x08 ? "_el1+2" :
+                        "_el1";
+    static char buf[COL_SIZE];
+    snprintf(buf, COL_SIZE-1, "%s%s", descr, priv);
+    return buf;
 }
 
-static inline void pmu_print_samples(size_t start, size_t i) {
-    size_t left_counters = sample_events_size - start;
-    size_t n = left_counters < pmu_num_counters() ? left_counters : pmu_num_counters();
-    for (size_t j = 0; j < n; j++) {
-        printf(SAMPLE_FORMAT, pmu_samples[start+j][i]);
-    }
-    printf(SAMPLE_FORMAT, cycle_samples[start/pmu_num_counters()][i]);
-}
-
-
-void print_samples() {
-
-    for(size_t i = 0; i < sample_events_size; i+= pmu_num_counters()) {
-        printf(HEADER_FORMAT, "time");
-        pmu_print_header(i);
-        printf("\n");
-        for (size_t j = 0; j < NUM_SAMPLES; j++) {
-            printf(SAMPLE_FORMAT, time_samples[i/pmu_num_counters()][j]);
-            pmu_print_samples(i, j);
-            printf("\n");
-        }
-    }
-    
-}
-
-uint64_t transfer_times[NUM_TRANSFER_SIZES][NUM_SAMPLES];
-
-void print_transfer_times() {
-
+static inline void print_pmu_counters(size_t start, size_t n) {
     for(size_t i = 0; i < NUM_TRANSFER_SIZES; i++) {
         printf(HEADER_FORMAT, transfer_names[i]);
     }
     printf("\n");
     for (size_t j = 0; j < NUM_SAMPLES; j++) {
         for(size_t i = 0; i < NUM_TRANSFER_SIZES; i++) {
+            printf(SAMPLE_FORMAT, pmu_samples[i][start+n][j]);
+        }
+        printf("\n");
+    }
+}
+
+uint64_t transfer_times[NUM_BUFFER_SIZES][NUM_SAMPLES];
+
+void print_transfer_times() {
+
+    for(size_t i = 0; i < NUM_BUFFER_SIZES; i++) {
+        printf(HEADER_FORMAT, buffer_names[i]);
+    }
+    printf("\n");
+    for (size_t j = 0; j < NUM_SAMPLES; j++) {
+        for(size_t i = 0; i < NUM_BUFFER_SIZES; i++) {
             printf(SAMPLE_FORMAT, transfer_times[i][j]);
         }
         printf("\n");
@@ -143,39 +124,45 @@ void print_transfer_times() {
     
 }
 
-void transfer(size_t buf_size_index, size_t transfer_size_index, bool polling) {
+void transfer(bool polling) {
 
     srand((unsigned) timer_get());
     unsigned long val = rand();
-    const size_t buf_size = transfer_sizes[buf_size_index];
-    const size_t transfer_size = transfer_sizes[transfer_size_index];
-    transfer_ctrl->buf_size = buf_size;
-    transfer_ctrl->transfer_size = transfer_size;
-    if (polling) transfer_ctrl->start_polling = true;
 
-    size_t multiple_cycles = transfer_size > buf_size;
-    size_t num_cycles = multiple_cycles ? transfer_size/buf_size : 1;
-    size_t cycle_length = multiple_cycles ? buf_size : transfer_size;
+#ifdef SAMPLE_PMU_METRICS
+    size_t counter_start = 0;
+    while (counter_start < sample_events_size) {
+#endif
+    size_t sample_count = 0;
+    for(size_t buf_size_index = 0; buf_size_index < NUM_BUFFER_SIZES; buf_size_index++) {
 
-    for (size_t i = 0; i < NUM_WARMUPS; i++) {
+        const size_t buf_size = buffer_sizes[buf_size_index];
+        const size_t transfer_size = 16 * 1024 * 1024;
+        transfer_ctrl->buf_size = buf_size;
+        transfer_ctrl->transfer_size = transfer_size;
+        if (polling) transfer_ctrl->start_polling = true;
 
-        for (size_t i = 0; i < num_cycles; i++) {
-            volatile unsigned long *ptr = SHMEM_DATA_BASE;
-            for (size_t j = 0; j < cycle_length/sizeof(val); j++) {
-                *ptr++ = val;
+        size_t multiple_cycles = transfer_size > buf_size;
+        size_t num_cycles = multiple_cycles ? transfer_size/buf_size : 1;
+        size_t cycle_length = multiple_cycles ? buf_size : transfer_size;
+
+        for (size_t i = 0; i < NUM_WARMUPS; i++) {
+            for (size_t i = 0; i < num_cycles; i++) {
+                volatile unsigned long *ptr = SHMEM_DATA_BASE;
+                for (size_t j = 0; j < cycle_length/sizeof(val); j++) {
+                    *ptr++ = val;
+                }
+                transfer_ctrl->received = false;
+                if (polling) transfer_ctrl->sent = true;
+                else shmem_send_event();
+                while(!transfer_ctrl->received);
             }
-            transfer_ctrl->received = false;
-            if (polling) transfer_ctrl->sent = true;
-            else shmem_send_event();
-            while(!transfer_ctrl->received);
         }
 
-    }
-
-    // size_t counter_start = 0;
-    // while (counter_start < sample_events_size) {
         for (sample_count = 0; sample_count < NUM_SAMPLES; sample_count++) {
-    //         pmu_setup(counter_start, sample_events_size - counter_start);
+#ifdef SAMPLE_PMU_METRICS
+            pmu_setup(counter_start, sample_events_size - counter_start);
+#endif
 
             uint64_t time_start = timer_get();
             for (size_t i = 0; i < num_cycles; i++) {
@@ -190,14 +177,32 @@ void transfer(size_t buf_size_index, size_t transfer_size_index, bool polling) {
             }
 
             uint64_t total_time = timer_get() - time_start;
-            transfer_times[transfer_size_index][sample_count] = total_time;
-
-    //         pmu_sample(counter_start);
-    //         time_samples[counter_start/pmu_num_counters()][sample_count] = total_time;
+            transfer_times[buf_size_index][sample_count] = total_time;
+#ifdef SAMPLE_PMU_METRICS
+            pmu_sample(counter_start, sample_count, transfer_size_index);
+#endif
         }
-    //     counter_start += pmu_num_counters();
-    // }
-    // print_samples();
+    }
+        
+        char *mode = polling ? "polling" : "interrupt";
+        printf("<- %s, %s, time\n", mode, "16M");
+        print_transfer_times();
+        printf("->\n");
+
+#ifdef SAMPLE_PMU_METRICS
+        size_t left_counters = sample_events_size - counter_start;
+        size_t counter_num = left_counters < pmu_num_counters() ? left_counters : pmu_num_counters();
+        for (size_t i = 0; i < counter_num; i++) {
+            char *event = pmu_get_event_name(counter_start, i);
+            printf("<- %s, %s, %s\n", mode, buffer_names[buf_size_index], event);
+            print_pmu_counters(counter_start, i);
+            printf("->\n");
+        }
+
+        counter_start += pmu_num_counters();
+
+    }
+#endif
 }
 
 
@@ -219,25 +224,8 @@ void shmem_benchmark_transfer() {
     while (true) {
         printf("Press 's' to start...\n");
         while(uart_getchar() != 's');
-
-        for (int i = 0; i < NUM_TRANSFER_SIZES; i++) {
-            for (int j = 0; j < NUM_TRANSFER_SIZES; j++) {
-                transfer(i, j, true);
-            }
-            printf("<- polling, %s\n", transfer_names[i]);
-            print_transfer_times();
-            printf("->\n");
-        }
-
-        for (int i = 0; i < NUM_TRANSFER_SIZES; i++) {
-            for (int j = 0; j < NUM_TRANSFER_SIZES; j++) {
-                transfer(i, j, false);
-            }
-            printf("<- interrupt, %s\n", transfer_names[i]);
-            print_transfer_times();
-            printf("->\n");
-        }
+        transfer(true);
+        transfer(false);
     }
 
 }
-

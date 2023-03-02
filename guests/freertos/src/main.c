@@ -47,7 +47,9 @@ void vApplicationTickHook(void);
 
 void vTask(void *pvParameters)
 {
-    printf("boottime-freertos-user %ld\n", MRS(CNTPCT_EL0));
+    uint64_t boottime = MRS(CNTPCT_EL0);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+    printf("boottime-freertos %ld\n", boottime);
     while (1);
 }
 
@@ -59,8 +61,6 @@ void uart_rx_handler(){
 uint64_t boot_counter = 0xdeadbeef;
 
 int main(void){
-
-    printf("boottime-freertos %ld\n", boot_counter);
 
     uart_enable_rxirq();
     irq_set_handler(UART_IRQ_ID, uart_rx_handler);

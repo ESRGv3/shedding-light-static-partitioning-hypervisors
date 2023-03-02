@@ -1,0 +1,26 @@
+From df2b8eed234e866c5a3929222fbb34b8edd1f37c Mon Sep 17 00:00:00 2001
+From: Jose Martins <josemartins90@gmail.com>
+Date: Wed, 1 Mar 2023 14:37:35 +0000
+Subject: [PATCH] allow user access to timer
+
+Signed-off-by: Jose Martins <josemartins90@gmail.com>
+---
+ drivers/clocksource/arm_arch_timer.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
+index be6d741d4..259e35f00 100644
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -876,6 +876,8 @@ static void arch_counter_set_user_access(void)
+ 	else
+ 		cntkctl |= ARCH_TIMER_USR_VCT_ACCESS_EN;
+ 
++    cntkctl |= ARCH_TIMER_USR_PCT_ACCESS_EN | ARCH_TIMER_USR_PT_ACCESS_EN;
++
+ 	arch_timer_set_cntkctl(cntkctl);
+ }
+ 
+-- 
+2.34.1
+
