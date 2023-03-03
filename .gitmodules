@@ -1,19 +1,19 @@
 [submodule "bao/bao"]
 	path = bao/bao
-	url = https://gitlab.com/ESRGv3/shedding-light-paper/bao.git
+	url = https://github.com/ESRGv3/bao-shedlight.git
 	branch = shedding-light
 [submodule "xen/imagebuilder"]
 	path = xen/imagebuilder
-	url = git@gitlab.com:ESRGv3/shedding-light-paper/imagebuilder.git
+	url = https://github.com/josecm/imagebuilder.git
 [submodule "jailhouse/jailhouse"]
 	path = jailhouse/jailhouse
-	url = https://gitlab.com/ESRGv3/shedding-light-paper/jailhouse
+	url = https://github.com/ESRGv3/jailhouse-shedlight
 	branch = shedding-light
 [submodule "xen/xen"]
 	path = xen/xen
-	url = https://gitlab.com/ESRGv3/shedding-light-paper/xen.git
+	url = https://github.com/ESRGv3/xen-shedlight.git
 	branch = shedding-light
 [submodule "sel4/camkes-vmm"]
 	path = sel4/camkes-vmm
-	url = https://gitlab.com/ESRGv3/shedding-light-paper/sel4-camkes-vmm.git
+	url = https://github.com/ESRGv3/sel4-camkes-vmm.git
 	branch = shedding-light
